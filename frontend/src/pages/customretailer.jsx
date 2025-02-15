@@ -14,6 +14,8 @@ import {
   LineElement,
   Filler
 } from 'chart.js';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 ChartJS.register(
   CategoryScale,
@@ -318,6 +320,62 @@ const CustomRetailerDashboard = () => {
     }
   };
 
+  const generatePDF = async () => {
+    try {
+      const doc = new jsPDF();
+      let yPosition = 20;
+      
+      // Add title
+      doc.setFontSize(20);
+      doc.text("Data Analysis Report", 20, yPosition);
+      
+      // Add timestamp
+      yPosition += 15;
+      doc.setFontSize(12);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, yPosition);
+      
+      // Add current chart section
+      yPosition += 20;
+      doc.setFontSize(16);
+      doc.text(`${activeChart.charAt(0).toUpperCase() + activeChart.slice(1)} Analysis`, 20, yPosition);
+
+      // Capture and add the current chart
+      const chartElement = document.querySelector('.h-\\[400px\\]');
+      if (chartElement) {
+        const canvas = await html2canvas(chartElement);
+        const chartImage = canvas.toDataURL('image/png');
+        yPosition += 10;
+        doc.addImage(chartImage, 'PNG', 20, yPosition, 170, 100);
+      }
+
+      // Add insights
+      yPosition += 110;
+      doc.setFontSize(14);
+      doc.text("Key Insights:", 20, yPosition);
+      
+      // Add current chart insights
+      yPosition += 10;
+      doc.setFontSize(12);
+      chartInsights[activeChart].forEach((insight) => {
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.setFont(undefined, 'bold');
+        doc.text(insight.value, 20, yPosition);
+        doc.setFont(undefined, 'normal');
+        doc.text(insight.text, 50, yPosition);
+        yPosition += 10;
+      });
+
+      // Save the PDF
+      doc.save(`${activeChart}-analysis-report.pdf`);
+
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
       {/* Left Sidebar with Data Insights Title */}
@@ -508,6 +566,70 @@ const CustomRetailerDashboard = () => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Export Analysis Section */}
+        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative group bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-xl p-6 
+              hover:from-gray-800/90 hover:to-gray-900/90 transition-all duration-300 shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-xl"></div>
+              
+              <div className="relative">
+                <div className="flex items-center gap-6">
+                  <div className="flex-shrink-0 w-16 h-16 bg-indigo-500/10 rounded-xl flex items-center justify-center
+                    group-hover:scale-110 transition-transform duration-300">
+                    <FileText className="w-8 h-8 text-indigo-400" />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold text-white mb-1 bg-clip-text text-transparent bg-gradient-to-r 
+                      from-indigo-200 to-blue-200">
+                      Export Analysis Report
+                    </h3>
+                    <p className="text-sm text-gray-400">Download comprehensive analysis with charts and insights</p>
+                  </div>
+
+                  <button 
+                    onClick={generatePDF}
+                    className="flex-shrink-0 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 
+                      text-white rounded-lg transition-all duration-300 text-sm font-medium
+                      flex items-center gap-2 hover:scale-105 shadow-lg"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download Report
+                  </button>
+                </div>
+
+                <div className="mt-6 flex items-center gap-4">
+                  <span className="px-3 py-1.5 bg-gray-700/50 rounded-lg text-sm text-gray-300 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Includes Charts & Insights
+                  </span>
+                  <span className="px-3 py-1.5 bg-gray-700/50 rounded-lg text-sm text-gray-300 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                    </svg>
+                    Secure PDF Export
+                  </span>
+                  <span className="px-3 py-1.5 bg-gray-700/50 rounded-lg text-sm text-gray-300 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    High Quality
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
