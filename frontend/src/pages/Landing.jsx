@@ -103,41 +103,65 @@ const AnalyticsSVG = () => {
 
 const HeroSection = () => {
   return (
-    <div className="relative overflow-hidden bg- dark:from-gray-900 dark:to-gray-800 pt-16 pb-24">
-      <div className="absolute inset-0 w-full h-full pointer-events-none">
-        <div className="absolute top-1/5 left-1/4 w-48 h-48 bg-indigo-500 opacity-30 blur-3xl rounded-full animate-pulse"></div>
-        <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-indigo-400 opacity-40 blur-3xl rounded-full animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/15 w-96 h-96 bg-indigo-300 opacity-50 blur-3xl rounded-full animate-pulse"></div>
-        <div className="absolute top-2/3 left-1/8 w-56 h-56 bg-indigo-600 opacity-25 blur-3xl rounded-full animate-pulse"></div>
-        <div className="absolute bottom-1/5 right-1/4 w-64 h-64 bg-indigo-200 opacity-60 blur-3xl rounded-full animate-pulse"></div>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 pt-16 pb-24">
+      {/* Enhanced background effects */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_#3b82f6_0%,_transparent_50%)] opacity-20"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_#6366f1_0%,_transparent_50%)] opacity-20"></div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-          <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
-              <span className="block">Transform Your</span>
-              <span className="block text-blue-600 dark:text-blue-400">E-Commerce Data</span>
-            </h1>
-            <p className="mt-3 text-base text-gray-500 dark:text-gray-400 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-              Upload your CSV data and get instant insights. Our AI-powered platform analyzes your e-commerce data and provides actionable recommendations.
-            </p>
-            <div className="mt-8 sm:mx-auto sm:max-w-lg sm:flex sm:justify-center lg:justify-start">
-              <div className="rounded-md shadow">
-                <Link
-                  to="/register"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
-                >
+      
+      {/* Animated grid pattern */}
+      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]
+        opacity-10 animate-grid"></div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
+          {/* Text content */}
+          <div className="col-span-6 space-y-8">
+            <div className="space-y-4 animate-fade-in-up">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">
+                <span className="relative inline-block">
+                  <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+                    Transform Your
+                  </span>
+                  <span className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 transform scale-x-0 transition-transform group-hover:scale-x-100"></span>
+                </span>
+                <span className="block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 animate-gradient-x">
+                  E-Commerce Data
+                </span>
+              </h1>
+              <p className="text-xl text-gray-300 leading-relaxed animate-fade-in opacity-0 [animation-delay:400ms]">
+                Upload your CSV data and get instant insights. Our AI-powered platform analyzes your e-commerce data and provides actionable recommendations.
+              </p>
+            </div>
+
+            <div className="flex gap-4 animate-fade-in opacity-0 [animation-delay:600ms]">
+              <Link
+                to="/register"
+                className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white font-semibold 
+                  overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/40"
+              >
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 
+                  group-hover:opacity-100 transition-opacity duration-300"></div>
+                <span className="relative flex items-center gap-2">
                   Get Started
-                </Link>
-
-              </div>
-
+                  <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+              </Link>
             </div>
           </div>
-          <div className="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
-            <div className="relative mx-auto w-full rounded-lg shadow-lg lg:max-w-md">
-              <div className="relative block w-full bg-white dark:bg-gray-800/50 rounded-lg overflow-hidden backdrop-blur-sm bg-opacity-70 dark:bg-opacity-90 border border-gray-200 dark:border-gray-700 p-2">
-                <AnalyticsSVG />
+
+          {/* SVG Container with enhanced effects */}
+          <div className="col-span-6 mt-12 lg:mt-0">
+            <div className="relative w-full max-w-md mx-auto">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/40 to-indigo-600/40 rounded-lg blur-xl opacity-75 
+                group-hover:opacity-100 transition duration-1000"></div>
+              
+              <div className="relative bg-gray-800/80 backdrop-blur-sm rounded-lg p-6 ring-1 ring-white/10 
+                transform hover:scale-[1.02] transition-all duration-500 hover:ring-blue-500/50">
+                <div className="w-full h-full">
+                  <AnalyticsSVG />
+                </div>
               </div>
             </div>
           </div>
@@ -152,41 +176,74 @@ const FeaturesSection = () => {
   const features = [
     {
       icon: <Upload size={24} />,
-      title: "Easy Data Upload",
-      description: "Simply upload your CSV files and our platform handles the rest"
+      title: "Smart Data Upload",
+      description: "Seamlessly upload and process your CSV files with our intelligent data handling system",
+      gradient: "from-blue-600 to-indigo-600"
     },
     {
       icon: <BarChart size={24} />,
       title: "Advanced Analytics",
-      description: "Get deep insights into your e-commerce performance with AI-powered analysis"
+      description: "Transform raw data into actionable insights with our enterprise-grade analytics engine",
+      gradient: "from-indigo-600 to-blue-600"
     },
     {
       icon: <MessageCircle size={24} />,
-      title: "AI Chatbot",
-      description: "Query your data naturally with our conversational AI assistant"
+      title: "AI-Powered Assistant",
+      description: "Get instant answers and deep insights with our advanced AI chat interface",
+      gradient: "from-blue-600 to-indigo-600"
     }
   ];
 
   return (
-    <div id="features" className="py-16 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
-            Features that empower your business
+    <div id="features" className="relative py-32 bg-gray-900">
+      {/* Refined background with subtle patterns */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,white_60%,transparent_100%)]"></div>
+      
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center space-y-6">
+          <h2 className="text-4xl md:text-5xl font-bold">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-indigo-300">
+              Enterprise-Grade Features
+            </span>
           </h2>
-          <p className="mt-4 max-w-2xl text-xl text-gray-500 dark:text-gray-400 mx-auto">
-            Our platform provides everything you need to understand and optimize your e-commerce performance.
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            Powerful tools designed for modern e-commerce businesses
           </p>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div key={index} className="relative p-6  dark:bg-gray-800 rounded-xl shadow-md backdrop-blur-sm bg-opacity-70 dark:bg-opacity-70 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mb-5">
-                {feature.icon}
+            <div 
+              key={index} 
+              className="group h-full"
+            >
+              {/* Enhanced card design with fixed height */}
+              <div className="relative h-full p-8 rounded-2xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50
+                transition-all duration-500 hover:border-blue-500/50 hover:bg-gray-800/80 flex flex-col">
+                {/* Glowing icon */}
+                <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${feature.gradient} p-0.5 mb-8
+                  shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-500 flex-shrink-0`}>
+                  <div className="w-full h-full bg-gray-900 rounded-[10px] flex items-center justify-center">
+                    <div className="text-blue-400 group-hover:text-blue-300 transition-colors duration-500">
+                      {feature.icon}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-grow">
+                  <h3 className="text-xl font-semibold text-white mb-4 group-hover:text-blue-300 transition-colors duration-300">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
+                    {feature.description}
+                  </p>
+                </div>
+
+                {/* Subtle hover indicator */}
+                <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1">
+                  <ChevronRight className="w-5 h-5 text-blue-400" />
+                </div>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">{feature.title}</h3>
-              <p className="mt-2 text-base text-gray-500 dark:text-gray-400">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -200,63 +257,65 @@ const HowItWorksSection = () => {
     {
       number: "01",
       title: "Upload Your Data",
-      description: "Upload your e-commerce CSV data securely to our platform."
+      description: "Securely upload your e-commerce data through our enterprise-grade platform."
     },
     {
       number: "02",
-      title: "Automated Analysis",
-      description: "Our AI analyzes your data to find patterns and insights."
+      title: "AI Analysis",
+      description: "Our advanced AI engine processes and analyzes your data in real-time."
     },
     {
       number: "03",
-      title: "Get Actionable Insights",
-      description: "Review visualizations and recommendations for your business."
+      title: "Get Insights",
+      description: "Access detailed visualizations and actionable business insights."
     },
     {
       number: "04",
-      title: "Query with AI Chatbot",
-      description: "Ask questions about your data in natural language."
+      title: "Make Decisions",
+      description: "Transform insights into strategic business decisions with confidence."
     }
   ];
 
   return (
-    <div id="how-it-works" className="py-16 dark:bg-gray-900">
-      <div className="relative overflow-hidden bg-gradient-to-b from-gray-100 to-blue-50 dark:from-gray-800 dark:to-gray-900 pt-16 pb-24">
-        {/* Background Spheres */}
-        <div className="absolute inset-0 w-full h-full pointer-events-none">
-          <div className="absolute top-1/5 left-1/4 w-48 h-48 bg-indigo-500 opacity-30 blur-3xl rounded-full animate-pulse"></div>
-          <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-indigo-400 opacity-40 blur-3xl rounded-full animate-pulse"></div>
-          <div className="absolute bottom-1/3 right-1/15 w-96 h-96 bg-indigo-300 opacity-50 blur-3xl rounded-full animate-pulse"></div>
-          <div className="absolute top-2/3 left-1/8 w-56 h-56 bg-indigo-600 opacity-25 blur-3xl rounded-full animate-pulse"></div>
-          <div className="absolute bottom-1/5 right-1/4 w-64 h-64 bg-indigo-200 opacity-60 blur-3xl rounded-full animate-pulse"></div>
+    <div className="relative py-32 bg-gradient-to-b from-gray-900 to-gray-800">
+      {/* Professional background pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(45deg,#1e293b_0.5px,transparent_0.5px),linear-gradient(-45deg,#1e293b_0.5px,transparent_0.5px)] bg-[size:3rem_3rem] opacity-20"></div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center space-y-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-white">
+            How It Works
+          </h2>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            A streamlined process to transform your data into business value
+          </p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 relative">
-          <div className="text-center">
-            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
-              How It Works
-            </h2>
-            <p className="mt-4 max-w-2xl text-xl text-gray-500 dark:text-gray-400 mx-auto">
-              Four simple steps to transform your e-commerce data into actionable insights.
-            </p>
-          </div>
-
-          <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {steps.map((step, index) => (
-              <div key={index} className="relative p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md backdrop-blur-sm bg-opacity-70 dark:bg-opacity-70 border border-gray-200 dark:border-gray-700">
-                <div className="absolute -top-4 -left-4 bg-indigo-600 rounded-full h-10 w-10 flex items-center justify-center text-white font-bold">
-                  {step.number}
+        <div className="mt-24 grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+          {steps.map((step, index) => (
+            <div key={index} className="relative group">
+              {/* Professional step card */}
+              <div className="relative p-8 rounded-2xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50
+                transition-all duration-500 hover:border-blue-500/50 hover:bg-gray-800/80">
+                {/* Step number */}
+                <div className="absolute -top-5 -left-5 w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center
+                  shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-500">
+                  <span className="text-lg font-bold text-white">{step.number}</span>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mt-4">{step.title}</h3>
-                <p className="mt-2 text-base text-gray-500 dark:text-gray-400">{step.description}</p>
+
+                <h3 className="text-xl font-semibold text-white mt-4 mb-4 group-hover:text-blue-300 transition-colors duration-300">
+                  {step.title}
+                </h3>
+                <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
+                  {step.description}
+                </p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
-
 };
 
 const CTASection = () => {
