@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Bar, Pie, Line } from 'react-chartjs-2';
-import { MessageCircle, X, Upload, FileText } from 'lucide-react';
+import { MessageCircle, X, Upload, FileText, Paperclip } from 'lucide-react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -39,6 +39,10 @@ const CustomRetailerDashboard = () => {
       content: 'Hello! I can help you analyze your e-commerce data. You can also upload PDF documents for analysis.'
     }
   ]);
+  
+  // State to manage selected file type
+  const [fileType, setFileType] = useState('');
+  const [showFileOptions, setGiveOptions] = useState(false); // Renamed function
 
   const barData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June'],
@@ -135,45 +139,40 @@ const CustomRetailerDashboard = () => {
     },
   };
 
-  const handlePdfUpload = (event) => {
+  const handleFileUpload = (event) => {
     const file = event.target.files[0];
-    setPdfError('');
-    
     if (file) {
-      if (file.type !== 'application/pdf') {
-        setPdfError('Please upload only PDF files');
+      // Handle file upload based on the selected file type
+      if (fileType === 'image' && !file.type.startsWith('image/')) {
+        alert('Please upload a valid image file.');
         return;
       }
-      if (file.size > 5 * 1024 * 1024) {
-        setPdfError('File size must be less than 5MB');
+      if (fileType === 'csv' && file.type !== 'text/csv') {
+        alert('Please upload a valid CSV file.');
         return;
       }
-      setSelectedPdf(file);
-      // Add PDF upload message to chat
-      setMessages(prev => [...prev, {
-        type: 'ai',
-        content: `PDF uploaded: ${file.name}`
-      }]);
+      if (fileType === 'text' && file.type !== 'text/plain') {
+        alert('Please upload a valid text file.');
+        return;
+      }
+      // Handle the file (e.g., set it to state or process it)
+      console.log(`Uploaded ${fileType}:`, file);
+      setGiveOptions(false); // Hide options after selection
     }
   };
 
   const handleSendMessage = () => {
     if (messageInput.trim()) {
-      // Add user message
       setMessages(prev => [...prev, {
         type: 'user',
         content: messageInput
       }]);
-
-      // Simulate AI response
       setTimeout(() => {
         setMessages(prev => [...prev, {
           type: 'ai',
           content: 'I received your message: ' + messageInput
         }]);
       }, 1000);
-
-      // Clear input
       setMessageInput('');
     }
   };
@@ -213,6 +212,62 @@ const CustomRetailerDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Paperclip Button */}
+      <button
+        onClick={() => setGiveOptions(!showFileOptions)} // Toggle file options
+        className={`fixed bottom-26 right-6 p-4 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 ${
+          showFileOptions ? 'hidden' : 'flex'
+        }`}
+      >
+        <Paperclip size={24} />
+      </button>
+
+      {/* File Upload Options */}
+      {showFileOptions && (
+        <div className="fixed bottom-36 right-6 bg-white dark:bg-white-800 rounded-lg shadow-lg py-8 w-[20%]">
+          <button
+            onClick={() => setGiveOptions(false)} // Close options
+            className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
+          >
+            <X size={20} />
+          </button>
+          <button
+            onClick={() => {
+              setFileType('image');
+              document.getElementById('file-upload').click();
+            }}
+            className="block w-full text-left p-2 pl-4 hover:bg-gray-200"
+          >
+            Image
+          </button>
+          <button
+            onClick={() => {
+              setFileType('csv');
+              document.getElementById('file-upload').click();
+            }}
+            className="block w-full text-left p-2 pl-4 hover:bg-gray-200"
+          >
+            CSV
+          </button>
+          <button
+            onClick={() => {
+              setFileType('text');
+              document.getElementById('file-upload').click();
+            }}
+            className="block w-full text-left p-2 pl-4 hover:bg-gray-200"
+          >
+            Text
+          </button>
+          <input
+            type="file"
+            id="file-upload"
+            accept=".jpg,.jpeg,.png,.csv,.txt" // Accepting relevant file types
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+        </div>
+      )}
 
       {/* Chat Button */}
       <button
@@ -315,7 +370,7 @@ const CustomRetailerDashboard = () => {
                 )}
               </div>
 
-              {/* Message Input */}
+              {/* Updated Message Input */}
               <div className="flex gap-2">
                 <input
                   type="text"
