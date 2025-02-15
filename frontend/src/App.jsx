@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
 import RetailerDashboard from './pages/retailer'
+import CustomRetailerDashboard from './pages/customretailer'
 
 function App() {
   // Initialize darkMode as true
@@ -26,6 +27,7 @@ function App() {
           <Route path="/register" element={<Register/>} />
           <Route path="/" element={<Landing/>} />
           <Route path="/retailer" element={<RetailerDashboard/>} />
+          <Route path="/customretailer" element={<CustomRetailerDashboard/>} />
         </Routes>
       </BrowserRouter>
     </div>
