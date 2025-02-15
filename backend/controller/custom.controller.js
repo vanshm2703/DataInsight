@@ -88,7 +88,7 @@ const monthXprice = async (req, res) => {
         success: true,
         response:
           completion.choices[0]?.message?.content || "No response generated",
-        chart: priceArray, // Array of total prices per month (Jan to Dec)
+        data: priceArray, // Array of total prices per month (Jan to Dec)
       });
     } catch (error) {
       console.error("Error during AI chat generation:", error);
@@ -161,7 +161,7 @@ const categoryPie = async (req, res) => {
         success: true,
         response:
           completion.choices[0]?.message?.content || "No response generated",
-        chart: categoryArray, // Array of category occurrences
+        data: categoryArray, // Array of category occurrences
       });
     } catch (error) {
       console.error("Error during AI chat generation:", error);
@@ -169,20 +169,70 @@ const categoryPie = async (req, res) => {
     }
   };
 
-  
+
 
 // multiline graph
 const genderXcategory = async (req, res) => {
   try {
-    const { msg } = req.body;
+    // Fetch only gender and category from all orders in MongoDB
+    const orders = await Order.find({}, { gender: 1, category: 1, _id: 0 });
+
+    // Check if data exists
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No gender-category data found.",
+      });
+    }
+
+    // Create separate frequency counters for male and female
+    const maleCategoryCount = {};
+    const femaleCategoryCount = {};
+
+    orders.forEach((order) => {
+      if (order.gender && order.category) {
+        if (order.gender.toLowerCase() === "male") {
+          maleCategoryCount[order.category] = (maleCategoryCount[order.category] || 0) + 1;
+        } else if (order.gender.toLowerCase() === "female") {
+          femaleCategoryCount[order.category] = (femaleCategoryCount[order.category] || 0) + 1;
+        }
+      }
+    });
+
+    // Convert category counts to arrays (ensuring both arrays have the same category order)
+    const uniqueCategories = [...new Set([...Object.keys(maleCategoryCount), ...Object.keys(femaleCategoryCount)])];
+
+    const maleArray = uniqueCategories.map((category) => maleCategoryCount[category] || 0);
+    const femaleArray = uniqueCategories.map((category) => femaleCategoryCount[category] || 0);
+
+    // Convert MongoDB data into the required format for LLM
+    const formattedData = orders.map((order) => ({
+      gender: order.gender,
+      category: order.category,
+    }));
+
+    // Convert JSON to a properly formatted string for LLM
+    const formattedJson = JSON.stringify(formattedData, null, 2);
+
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: "user",
-          content: `You are a data analyst expert. I need you to take the following json data and generate data points to create a multi-line chart.
-                              where x-axis will have gender and the y-axis will have category attribute. Where there will be 2 lines drawn for male and female, give data points for this.
-                              The data should be taken from the json provided below 
-                              Description: ${msg}`,
+          content: `You are a data analyst expert. I need you to analyze the following JSON data and generate **brief, data-driven insights** based on the relationship between **gender and category**.
+                    - Identify **which categories are more popular among males vs females**.
+                    - Highlight **top categories for each gender**.
+                    - Detect any notable **purchase trends based on gender**.
+                    
+                    ### **STRICT RESPONSE GUIDELINES:**  
+                    ✅ **Return output strictly in HTML format** for easy rendering.  
+                    ❌ **Do NOT include any JavaScript, charts, or CSS styling.**  
+                    ❌ **Do NOT add any generic explanations or disclaimers.**  
+
+                    Here is the JSON data:
+                    \n\`\`\`json\n${formattedJson}\n\`\`\`
+
+                    The output should be structured using only **HTML elements (e.g., <h2>, <p>, <ul>, <li>)** and contain **only the insights** related to the given data.
+                    `,
         },
       ],
       model: "llama3-8b-8192",
@@ -194,9 +244,12 @@ const genderXcategory = async (req, res) => {
       success: true,
       response:
         completion.choices[0]?.message?.content || "No response generated",
+      male: maleArray, // Array of male category counts
+      female: femaleArray, // Array of female category counts
     });
   } catch (error) {
-    console.error("Error during AI chat generation : ", error);
+    console.error("Error during AI chat generation:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
