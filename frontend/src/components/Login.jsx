@@ -1,18 +1,47 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import axios from "axios"; // Added axios import
 import "ldrs/momentum";
 import "ldrs/helix";
-import Loader from "../Loader/Loader"
+import Loader from "../Loader/Loader";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [userType, setUserType] = useState("user"); // New state for user type
+  const [userType, setUserType] = useState("client"); // New state for user type
 
   const loginHandle = async (e) => {
     e.preventDefault();
-    toast.success(`Login clicked as ${userType}`);
+    setIsLoading(true);
+    
+    try {
+      // Make API call with axios
+      const response = await axios.post('http://localhost:5000/user/login', {
+        email,
+        password,
+        role: userType // Pass the selected role to the backend
+      });
+      
+      // Handle successful login
+      toast.success(`Successfully logged in as ${userType}`);
+      
+      // Store the token/user data in localStorage
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.data.token);
+      
+      // Redirect to appropriate page based on role after a short delay
+      setTimeout(() => {
+        window.location.href = userType === 'user' ? '/user' : '/retailer';
+      }, 1000);
+      
+    } catch (error) {
+      // Handle error
+      const errorMessage = error.response?.data?.message || "Login failed";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,7 +60,7 @@ const Login = () => {
         )}
 
         {/* Trial login info */}
-        <div className="absolute mt-5 border rounded-lg top-0 left-1/2 transform -translate-x-1/2 p-4 bg-[#3B82F6] text-white text-sm sm:text-base text-center w-auto">
+        <div className="absolute mt-5 border rounded-lg top-0 left-1/2 transform -translate-x-1/2 p-4 bg-blue-400 text-white text-sm sm:text-base text-center w-auto">
           <p>
             <strong>Trial Login Info:</strong>
             <br />
@@ -50,7 +79,7 @@ const Login = () => {
           {/* User Type Selection */}
           <div className="flex gap-4 mb-6">
             <button
-              onClick={() => setUserType("user")}
+              onClick={() => setUserType("client")}
               className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${
                 userType === "user"
                   ? "bg-[#3B82F6] text-white"
@@ -60,6 +89,7 @@ const Login = () => {
               User
             </button>
             <button
+              type="button" // Added type button to prevent form submission
               onClick={() => setUserType("retailer")}
               className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${
                 userType === "retailer"
@@ -73,7 +103,7 @@ const Login = () => {
 
           <form
             className="space-y-4 w-full mx-auto"
-            onSubmit={(e) => loginHandle(e)}
+            onSubmit={loginHandle}
           >
             <input
               type="email"
