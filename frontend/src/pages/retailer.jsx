@@ -30,6 +30,13 @@ ChartJS.register(
 
 const RetailerDashboard = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [messageInput, setMessageInput] = useState('');
+  const [messages, setMessages] = useState([
+    {
+      type: 'ai',
+      content: 'Hello! I can help you analyze your e-commerce data. What would you like to know?'
+    }
+  ]);
 
   const barData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June'],
@@ -126,6 +133,27 @@ const RetailerDashboard = () => {
     },
   };
 
+  const handleSendMessage = () => {
+    if (messageInput.trim()) {
+      // Add user message
+      setMessages(prev => [...prev, {
+        type: 'user',
+        content: messageInput
+      }]);
+
+      // Simulate AI response
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          type: 'ai',
+          content: 'I received your message: ' + messageInput
+        }]);
+      }, 1000);
+
+      // Clear input
+      setMessageInput('');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
       <div className="grid grid-cols-2 gap-6">
@@ -189,18 +217,30 @@ const RetailerDashboard = () => {
           {/* Chat Messages Area */}
           <div className="flex-1 p-4 overflow-y-auto">
             <div className="space-y-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                    <span className="text-white text-sm">AI</span>
-                  </div>
+              {messages.map((message, index) => (
+                <div key={index} className="flex items-start">
+                  {message.type === 'ai' ? (
+                    <>
+                      <div className="flex-shrink-0">
+                        <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+                          <span className="text-white text-sm">AI</span>
+                        </div>
+                      </div>
+                      <div className="ml-3 bg-blue-100 dark:bg-gray-700 p-3 rounded-lg">
+                        <p className="text-sm text-gray-800 dark:text-gray-200">
+                          {message.content}
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="ml-auto bg-blue-500 p-3 rounded-lg max-w-[80%]">
+                      <p className="text-sm text-white">
+                        {message.content}
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div className="ml-3 bg-blue-100 dark:bg-gray-700 p-3 rounded-lg">
-                  <p className="text-sm text-gray-800 dark:text-gray-200">
-                    Hello! I can help you analyze your e-commerce data. What would you like to know?
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
           
@@ -209,10 +249,20 @@ const RetailerDashboard = () => {
             <div className="flex space-x-2">
               <input
                 type="text"
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
                 placeholder="Ask something about your data..."
                 className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSendMessage();
+                  }
+                }}
               />
-              <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <button 
+                onClick={handleSendMessage}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
                 Send
               </button>
             </div>
