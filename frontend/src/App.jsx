@@ -7,7 +7,6 @@ import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
 import RetailerDashboard from './pages/retailer'
 import CustomRetailerDashboard from './pages/customretailer'
-import ParseExcel from './Json'
 
 // Component to conditionally render Navbar
 const AppLayout = ({darkMode, setDarkMode, children}) => {

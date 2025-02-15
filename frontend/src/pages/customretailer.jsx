@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Bar, Pie, Line } from 'react-chartjs-2';
-import { MessageCircle, X, Upload, FileText, Paperclip } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Bar, Line, Doughnut,Radar  } from 'react-chartjs-2';
+import { MessageCircle, X, Upload, FileText, Paperclip, Cat } from 'lucide-react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,8 +12,11 @@ import {
   ArcElement,
   PointElement,
   LineElement,
-  Filler
+  Filler,
+  RadialLinearScale
 } from 'chart.js';
+import axios from 'axios';
+import SummaryMetrics from '../components/SummaryMetrics';
 
 ChartJS.register(
   CategoryScale,
@@ -25,7 +28,8 @@ ChartJS.register(
   ArcElement,
   PointElement,
   LineElement,
-  Filler
+  Filler,
+  RadialLinearScale
 );
 
 const CustomRetailerDashboard = () => {
@@ -40,7 +44,30 @@ const CustomRetailerDashboard = () => {
       content: 'Hello! I can help you analyze your e-commerce data. You can also upload PDF documents for analysis.'
     }
   ]);
+  const [Month, setMonth] = useState({
+    html: "", values: []
+  })
+  const [category, setCategory] = useState({
+    html: "",
+    values: [],
+    label: []
+  });
+  const [line, setLine] = useState({
+    html: "",
+    male: [],
+    female: [],
+    label: []
+  });
+  const [radarData, setRadarData] = useState({
+    html: "",
+    values: [],
+    labels: []
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   
+
+
   // State to manage selected file type
   const [fileType, setFileType] = useState('');
   const [showFileOptions, setGiveOptions] = useState(false); // Renamed function
@@ -52,12 +79,103 @@ const CustomRetailerDashboard = () => {
     { type: 'text', label: 'Text', icon: '📝' }
   ];
 
+  const monthlyAnalysis = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/llm/monthxprice");
+
+      // Ensure the response contains data before updating state
+      if (res.data && res.data.data) {
+        setMonth((prevState) => ({
+          ...prevState,
+          values: res.data.data,
+          html: res.data.response
+        }));
+      }
+
+    } catch (error) {
+      console.error("Error fetching monthly analysis data:", error);
+    }
+  };
+
+  useEffect(() => {
+  }, [])
+
+  const categoryAnalysis = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post("http://localhost:5000/llm/categoryPie");
+
+      if (res.data && res.data.data && res.data.response && res.data.label) {
+        setCategory((prevState) => ({
+          ...prevState,
+          values: res.data.data,
+          html: res.data.response,
+          label: res.data.label
+        }));
+      } else {
+        console.error("⚠️ Unexpected API response structure:", res.data);
+        setError("Invalid data format received from the server");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching category analysis data:", error);
+      setError("Failed to fetch category analysis data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const lineAnalysis = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post("http://localhost:5000/llm/genderxcategory");
+
+      setLine((prevState) => ({
+        ...prevState,
+        male: res.data.male,
+        female: res.data.female,
+        html: res.data.response,
+        label: res.data.label || ["Groceries", "Home Appliances", "Electronics", "Beauty & Personal Care", "Apparel"]
+      }));
+    } catch (error) {
+      console.error("❌ Error fetching line analysis data:", error);
+      setError("Failed to fetch gender analysis data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDeliveryReturnData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post("http://localhost:5000/llm/deliver");
+      
+      if (res.data && res.data.data && res.data.response && res.data.labels) {
+        setRadarData({
+          values: res.data.data,
+          html: res.data.response,
+          labels: res.data.labels
+        });
+      } else {
+        console.error("⚠️ Unexpected API response structure:", res.data);
+        setError("Invalid data format received from the server");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching delivery return data:", error);
+      setError("Failed to fetch delivery and return status data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const barData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     datasets: [
       {
         label: 'Monthly Sales',
-        data: [12000, 19000, 15000, 25000, 22000, 30000],
+        data: Month.values,
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
         borderColor: 'rgb(53, 162, 235)',
         borderWidth: 2,
@@ -69,29 +187,39 @@ const CustomRetailerDashboard = () => {
     ],
   };
 
-  const pieData = {
-    labels: ['Electronics', 'Clothing', 'Food', 'Books', 'Home & Garden'],
+  const doughnut = {
+    labels: category.label.length > 0 ? category.label : ["Groceries", "Home Appliances", "Electronics", "Beauty & Personal Care", "Apparel"],
     datasets: [
       {
-        data: [35, 25, 20, 15, 5],
+        data: category.values.length > 0 ? category.values : [30, 25, 20, 15, 10],
         backgroundColor: [
           'rgba(255, 99, 132, 0.7)',
           'rgba(54, 162, 235, 0.7)',
           'rgba(255, 206, 86, 0.7)',
           'rgba(75, 192, 192, 0.7)',
           'rgba(153, 102, 255, 0.7)',
+          'rgba(255, 159, 64, 0.7)',
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)',
         ],
         borderWidth: 1,
       },
     ],
   };
 
+
   const lineData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    labels: line.label.length > 0 ? line.label : ["Groceries", "Home Appliances", "Electronics", "Beauty & Personal Care", "Apparel"],
     datasets: [
       {
-        label: 'Current Revenue',
-        data: [65000, 59000, 80000, 81000, 86000, 95000],
+        label: 'Male',
+        data: line.male,
         fill: false,
         borderColor: 'rgb(75, 192, 192)',
         backgroundColor: 'rgb(75, 192, 192)',
@@ -101,8 +229,8 @@ const CustomRetailerDashboard = () => {
         pointHoverBorderColor: 'white',
       },
       {
-        label: 'Previous Revenue',
-        data: [55000, 49000, 70000, 71000, 76000, 85000],
+        label: 'Female',
+        data: line.female,
         fill: false,
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgb(255, 99, 132)',
@@ -114,24 +242,38 @@ const CustomRetailerDashboard = () => {
     ],
   };
 
-  const areaChartData = {
-    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
-    datasets: [
-      {
-        fill: true,
-        label: 'Customer Growth',
-        data: [500, 800, 1200, 1500, 2000, 2500],
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.2)',
-        pointBackgroundColor: 'white',
-        pointBorderColor: 'rgb(53, 162, 235)',
-        pointHoverBackgroundColor: 'rgb(53, 162, 235)',
-        pointHoverBorderColor: 'white',
-        pointRadius: 6,
-        pointHoverRadius: 8,
-      },
-    ],
-  };
+ // Default data as fallback
+ const defaultData = {
+  labels: [
+    "Delivered - Not Returned",
+    "Delivered - Returned",
+    "Shipped - Not Returned",
+    "Shipped - Returned",
+    "Pending - Not Returned",
+    "Pending - Returned"
+  ],
+  values: [32, 8, 24, 4, 26, 6]
+};
+
+// Prepare radar chart data with fallback
+const radarChartData = {
+  labels: radarData.labels.length > 0 ? radarData.labels : defaultData.labels,
+  datasets: [
+    {
+      label: 'Delivery & Return Combinations',
+      data: radarData.values.length > 0 ? radarData.values : defaultData.values,
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 2,
+      pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    }
+  ],
+};
 
   const chartOptions = {
     responsive: true,
@@ -161,16 +303,14 @@ const CustomRetailerDashboard = () => {
         borderWidth: 1,
         displayColors: true,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             let label = context.dataset.label || '';
             if (label) {
               label += ': ';
             }
             if (context.parsed.y !== null) {
-              label += new Intl.NumberFormat('en-US', { 
-                style: 'currency', 
-                currency: 'USD' 
-              }).format(context.parsed.y);
+              // Format as whole number instead of currency
+              label += context.parsed.y;
             }
             return label;
           }
@@ -201,8 +341,9 @@ const CustomRetailerDashboard = () => {
           color: 'rgba(200, 200, 200, 0.1)',
         },
         ticks: {
-          callback: function(value) {
-            return '$' + value.toLocaleString();
+          // Remove currency formatting
+          callback: function (value) {
+            return value;
           }
         }
       },
@@ -214,45 +355,120 @@ const CustomRetailerDashboard = () => {
     }
   };
 
-  // Update the chartInsights object with more detailed, pointer-style insights
-  const chartInsights = {
-    monthly: [
-      { value: "$30,000", text: "Highest sales recorded in June" },
-      { value: "23%", text: "Month-over-month growth in Q2" },
-      { value: "15K+", text: "Average units sold per month" },
-      { value: "$22,000", text: "Average monthly revenue" },
-      { value: "92%", text: "Target achievement rate" }
-    ],
-    categories: [
-      { value: "35%", text: "Electronics dominates total sales" },
-      { value: "25%", text: "Clothing shows consistent growth" },
-      { value: "20%", text: "Food sector expanding rapidly" },
-      { value: "15%", text: "Books maintain steady performance" },
-      { value: "5%", text: "Home & Garden potential for growth" }
-    ],
-    revenue: [
-      { value: "$95,000", text: "Peak revenue achieved in June" },
-      { value: "46%", text: "Year-over-year growth" },
-      { value: "$77,666", text: "Average monthly revenue" },
-      { value: "12%", text: "Improvement from previous year" },
-      { value: "$15,000", text: "Average revenue increase per month" }
-    ],
-    growth: [
-      { value: "2,500", text: "Total customers by week 6" },
-      { value: "400%", text: "Customer base growth rate" },
-      { value: "500", text: "New customers per week" },
-      { value: "85%", text: "Customer retention rate" },
-      { value: "3x", text: "Faster growth than industry average" }
-    ]
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: {
+            size: 12
+          },
+          padding: 20
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#1e293b',
+        bodyColor: '#475569',
+        titleFont: {
+          size: 14,
+          weight: 'bold'
+        },
+        bodyFont: {
+          size: 13
+        },
+        padding: 12,
+        borderColor: '#e2e8f0',
+        borderWidth: 1,
+        displayColors: true,
+        callbacks: {
+          label: function(context) {
+            const label = context.label || '';
+            const value = context.raw || 0;
+            const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
+            const percentage = Math.round((value / total) * 100);
+            return `${label}: ${value} (${percentage}%)`;
+          }
+        }
+      }
+    },
+    cutout: '70%',
+    radius: '90%'
   };
 
-  // Add this object near your chartInsights definition
-  const chartAccentColors = {
-    monthly: 'bg-blue-500',
-    categories: 'bg-purple-500',
-    revenue: 'bg-green-500',
-    growth: 'bg-orange-500'
+  const radarOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 10,
+          font: {
+            size: 10
+          }
+        },
+        pointLabels: {
+          font: {
+            size: 11
+          },
+          callback: function(label) {
+            // Shortens the labels for better display
+            if (label.includes(' - ')) {
+              const parts = label.split(' - ');
+              return [parts[0], parts[1]];
+            }
+            return label;
+          }
+        },
+        grid: {
+          color: 'rgba(200, 200, 200, 0.2)'
+        },
+        angleLines: {
+          color: 'rgba(200, 200, 200, 0.2)'
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: {
+            size: 12
+          }
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#1e293b',
+        bodyColor: '#475569',
+        titleFont: {
+          size: 14,
+          weight: 'bold'
+        },
+        bodyFont: {
+          size: 13
+        },
+        padding: 12,
+        borderColor: '#e2e8f0',
+        borderWidth: 1,
+        displayColors: true,
+        callbacks: {
+          label: function(context) {
+            const value = context.raw || 0;
+            const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
+            const percentage = Math.round((value / total) * 100);
+            return `Count: ${value} (${percentage}% of total)`;
+          }
+        }
+      }
+    }
   };
+
+
+
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -327,28 +543,38 @@ const CustomRetailerDashboard = () => {
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">Analytics Dashboard</p>
           <nav className="space-y-2">
             <button
-              onClick={() => setActiveChart('monthly')}
-              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
-                activeChart === 'monthly'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
+              onClick={() => {
+                setActiveChart('monthly');
+                monthlyAnalysis();
+              }}
+              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${activeChart === 'monthly'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
             >
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
                 </svg>
                 <span>Monthly Sales</span>
               </div>
             </button>
 
+
             <button
-              onClick={() => setActiveChart('categories')}
-              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
-                activeChart === 'categories'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
+              onClick={() => {
+                setActiveChart('categories');
+                categoryAnalysis();
+              }}
+              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${activeChart === 'categories'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
             >
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,35 +585,40 @@ const CustomRetailerDashboard = () => {
               </div>
             </button>
 
+
             <button
-              onClick={() => setActiveChart('revenue')}
-              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
-                activeChart === 'revenue'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              onClick={() => {
+                setActiveChart('revenue');
+                lineAnalysis();
+              }}
+              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${activeChart === 'revenue'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
-            >
+              >
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
-                <span>Revenue Trend</span>
+                <span>Gender Analisys</span>
               </div>
             </button>
 
-            <button
-              onClick={() => setActiveChart('growth')}
-              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
-                activeChart === 'growth'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
+              <button
+                onClick={() => {
+                  setActiveChart('growth');
+                  fetchDeliveryReturnData();
+                }}
+              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${activeChart === 'growth'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
             >
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <span>Customer Growth</span>
+                <span>Delivery and Returns</span>
               </div>
             </button>
           </nav>
@@ -396,6 +627,7 @@ const CustomRetailerDashboard = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 p-6">
+        <SummaryMetrics/>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
           {activeChart === 'monthly' && (
             <div className="space-y-6">
@@ -407,19 +639,7 @@ const CustomRetailerDashboard = () => {
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
                 <div className="space-y-3">
-                  {chartInsights.monthly.map((insight, index) => (
-                    <div key={index} className="flex items-baseline space-x-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
-                        <span className="font-semibold text-gray-800 dark:text-white">
-                          {insight.value}
-                        </span>
-                      </div>
-                      <span className="text-gray-600 dark:text-gray-300">
-                        {insight.text}
-                      </span>
-                    </div>
-                  ))}
+                  <div dangerouslySetInnerHTML={{ __html: Month.html }} />
                 </div>
               </div>
             </div>
@@ -429,25 +649,12 @@ const CustomRetailerDashboard = () => {
             <div className="space-y-6">
               <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Product Categories</h3>
               <div className="h-[400px]">
-                <Pie data={pieData} options={chartOptions} />
-              </div>
+              <Doughnut data={doughnut} options={doughnutOptions} />              </div>
               {/* Replace the existing insights section with this simpler version */}
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
                 <div className="space-y-3">
-                  {chartInsights.categories.map((insight, index) => (
-                    <div key={index} className="flex items-baseline space-x-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
-                        <span className="font-semibold text-gray-800 dark:text-white">
-                          {insight.value}
-                        </span>
-                      </div>
-                      <span className="text-gray-600 dark:text-gray-300">
-                        {insight.text}
-                      </span>
-                    </div>
-                  ))}
+                  <div dangerouslySetInnerHTML={{ __html: category.html }} />
                 </div>
               </div>
             </div>
@@ -463,19 +670,7 @@ const CustomRetailerDashboard = () => {
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
                 <div className="space-y-3">
-                  {chartInsights.revenue.map((insight, index) => (
-                    <div key={index} className="flex items-baseline space-x-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
-                        <span className="font-semibold text-gray-800 dark:text-white">
-                          {insight.value}
-                        </span>
-                      </div>
-                      <span className="text-gray-600 dark:text-gray-300">
-                        {insight.text}
-                      </span>
-                    </div>
-                  ))}
+                  <div className='bg-white/80 p-2 border rounded-lg' dangerouslySetInnerHTML={{ __html: line.html }} />       
                 </div>
               </div>
             </div>
@@ -485,25 +680,13 @@ const CustomRetailerDashboard = () => {
             <div className="space-y-6">
               <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Customer Growth</h3>
               <div className="h-[400px]">
-                <Line data={areaChartData} options={chartOptions} />
+              <Radar data={radarChartData} options={radarOptions} />
               </div>
               {/* Replace the existing insights section with this simpler version */}
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
                 <div className="space-y-3">
-                  {chartInsights.growth.map((insight, index) => (
-                    <div key={index} className="flex items-baseline space-x-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
-                        <span className="font-semibold text-gray-800 dark:text-white">
-                          {insight.value}
-                        </span>
-                      </div>
-                      <span className="text-gray-600 dark:text-gray-300">
-                        {insight.text}
-                      </span>
-                    </div>
-                  ))}
+                  <div dangerouslySetInnerHTML={{ __html: radarData.html }} />
                 </div>
               </div>
             </div>
@@ -576,9 +759,8 @@ const CustomRetailerDashboard = () => {
       {/* Chat Button */}
       <button
         onClick={() => setIsChatOpen(true)}
-        className={`fixed bottom-6 right-6 p-4 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 ${
-          isChatOpen ? 'hidden' : 'flex'
-        }`}
+        className={`fixed bottom-6 right-6 p-4 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 ${isChatOpen ? 'hidden' : 'flex'
+          }`}
       >
         <MessageCircle size={24} />
       </button>
@@ -601,7 +783,7 @@ const CustomRetailerDashboard = () => {
               <X size={20} className="text-gray-500 dark:text-gray-400" />
             </button>
           </div>
-          
+
           {/* Chat Messages Area */}
           <div className="flex-1 p-4 overflow-y-auto">
             <div className="space-y-4">
@@ -647,7 +829,7 @@ const CustomRetailerDashboard = () => {
               )}
             </div>
           </div>
-          
+
           {/* Chat Input with PDF Upload */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="space-y-3">
@@ -688,7 +870,7 @@ const CustomRetailerDashboard = () => {
                     }
                   }}
                 />
-                <button 
+                <button
                   onClick={handleSendMessage}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
