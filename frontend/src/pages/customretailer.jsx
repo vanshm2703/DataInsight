@@ -14,8 +14,6 @@ import {
   LineElement,
   Filler
 } from 'chart.js';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 ChartJS.register(
   CategoryScale,
@@ -32,7 +30,6 @@ ChartJS.register(
 
 const CustomRetailerDashboard = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isPinned, setPinned] = useState(false);
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [pdfError, setPdfError] = useState('');
   const [messageInput, setMessageInput] = useState('');
@@ -260,6 +257,7 @@ const CustomRetailerDashboard = () => {
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+      // Handle file upload based on the selected file type
       if (fileType === 'image' && !file.type.startsWith('image/')) {
         alert('Please upload a valid image file.');
         return;
@@ -272,8 +270,9 @@ const CustomRetailerDashboard = () => {
         alert('Please upload a valid text file.');
         return;
       }
+      // Handle the file (e.g., set it to state or process it)
       console.log(`Uploaded ${fileType}:`, file);
-      setGiveOptions(false);
+      setGiveOptions(false); // Hide options after selection
     }
   };
 
@@ -319,345 +318,200 @@ const CustomRetailerDashboard = () => {
     }
   };
 
-  const generatePDF = async () => {
-    try {
-      const doc = new jsPDF();
-      let yPosition = 20;
-      
-      // Add title
-      doc.setFontSize(20);
-      doc.text("Data Analysis Report", 20, yPosition);
-      
-      // Add timestamp
-      yPosition += 15;
-      doc.setFontSize(12);
-      doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, yPosition);
-      
-      // Add current chart section
-      yPosition += 20;
-      doc.setFontSize(16);
-      doc.text(`${activeChart.charAt(0).toUpperCase() + activeChart.slice(1)} Analysis`, 20, yPosition);
-
-      // Capture and add the current chart
-      const chartElement = document.querySelector('.h-\\[400px\\]');
-      if (chartElement) {
-        const canvas = await html2canvas(chartElement);
-        const chartImage = canvas.toDataURL('image/png');
-        yPosition += 10;
-        doc.addImage(chartImage, 'PNG', 20, yPosition, 170, 100);
-      }
-
-      // Add insights
-      yPosition += 110;
-      doc.setFontSize(14);
-      doc.text("Key Insights:", 20, yPosition);
-      
-      // Add current chart insights
-      yPosition += 10;
-      doc.setFontSize(12);
-      chartInsights[activeChart].forEach((insight) => {
-        if (yPosition > 250) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFont(undefined, 'bold');
-        doc.text(insight.value, 20, yPosition);
-        doc.setFont(undefined, 'normal');
-        doc.text(insight.text, 50, yPosition);
-        yPosition += 10;
-      });
-
-      // Add chat history
-      yPosition += 15;
-      doc.setFontSize(14);
-      doc.text("AI Analysis History:", 20, yPosition);
-      
-      yPosition += 10;
-      doc.setFontSize(12);
-      messages.forEach((message) => {
-        if (yPosition > 250) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        
-        const role = message.type === 'user' ? 'Question' : 'Analysis';
-        doc.setFont(undefined, 'bold');
-        doc.text(`${role}:`, 20, yPosition);
-        doc.setFont(undefined, 'normal');
-        
-        // Handle text wrapping
-        const splitText = doc.splitTextToSize(message.content, 170);
-        doc.text(splitText, 20, yPosition + 7);
-        
-        yPosition += 10 + (splitText.length * 7);
-      });
-      
-      // Save the PDF
-      doc.save(`${activeChart}-analysis-report.pdf`);
-
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      // Add error handling UI feedback here
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="flex">
-        {/* Left Sidebar with Data Insights Title */}
-        <div className="w-64 bg-white dark:bg-gray-800 shadow-lg">
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Data Insights</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">Analytics Dashboard</p>
-            <nav className="space-y-2">
-              <button
-                onClick={() => setActiveChart('monthly')}
-                className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
-                  activeChart === 'monthly'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  <span>Monthly Sales</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setActiveChart('categories')}
-                className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
-                  activeChart === 'categories'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                  </svg>
-                  <span>Product Categories</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setActiveChart('revenue')}
-                className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
-                  activeChart === 'revenue'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                  <span>Revenue Trend</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setActiveChart('growth')}
-                className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
-                  activeChart === 'growth'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  <span>Customer Growth</span>
-                </div>
-              </button>
-            </nav>
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-1 p-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-            {activeChart === 'monthly' && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Monthly Sales</h3>
-                <div className="h-[400px]">
-                  <Bar data={barData} options={chartOptions} />
-                </div>
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
-                  <div className="space-y-3">
-                    {chartInsights.monthly.map((insight, index) => (
-                      <div key={index} className="flex items-baseline space-x-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
-                          <span className="font-semibold text-gray-800 dark:text-white">
-                            {insight.value}
-                          </span>
-                        </div>
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {insight.text}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
+      {/* Left Sidebar with Data Insights Title */}
+      <div className="w-64 bg-white dark:bg-gray-800 shadow-lg">
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Data Insights</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">Analytics Dashboard</p>
+          <nav className="space-y-2">
+            <button
+              onClick={() => setActiveChart('monthly')}
+              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
+                activeChart === 'monthly'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span>Monthly Sales</span>
               </div>
-            )}
+            </button>
 
-            {activeChart === 'categories' && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Product Categories</h3>
-                <div className="h-[400px]">
-                  <Pie data={pieData} options={chartOptions} />
-                </div>
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
-                  <div className="space-y-3">
-                    {chartInsights.categories.map((insight, index) => (
-                      <div key={index} className="flex items-baseline space-x-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
-                          <span className="font-semibold text-gray-800 dark:text-white">
-                            {insight.value}
-                          </span>
-                        </div>
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {insight.text}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <button
+              onClick={() => setActiveChart('categories')}
+              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
+                activeChart === 'categories'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                </svg>
+                <span>Product Categories</span>
               </div>
-            )}
+            </button>
 
-            {activeChart === 'revenue' && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Revenue Trend</h3>
-                <div className="h-[400px]">
-                  <Line data={lineData} options={chartOptions} />
-                </div>
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
-                  <div className="space-y-3">
-                    {chartInsights.revenue.map((insight, index) => (
-                      <div key={index} className="flex items-baseline space-x-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
-                          <span className="font-semibold text-gray-800 dark:text-white">
-                            {insight.value}
-                          </span>
-                        </div>
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {insight.text}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <button
+              onClick={() => setActiveChart('revenue')}
+              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
+                activeChart === 'revenue'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <span>Revenue Trend</span>
               </div>
-            )}
+            </button>
 
-            {activeChart === 'growth' && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Customer Growth</h3>
-                <div className="h-[400px]">
-                  <Line data={areaChartData} options={chartOptions} />
-                </div>
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
-                  <div className="space-y-3">
-                    {chartInsights.growth.map((insight, index) => (
-                      <div key={index} className="flex items-baseline space-x-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
-                          <span className="font-semibold text-gray-800 dark:text-white">
-                            {insight.value}
-                          </span>
-                        </div>
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {insight.text}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <button
+              onClick={() => setActiveChart('growth')}
+              className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${
+                activeChart === 'growth'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span>Customer Growth</span>
               </div>
-            )}
-          </div>
-
-          {/* Export Analysis Section */}
-          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <div className="max-w-2xl mx-auto">
-              {/* Enhanced Download Card */}
-              <div className="relative group bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-xl p-6 
-                hover:from-gray-800/90 hover:to-gray-900/90 transition-all duration-300 shadow-xl">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-xl"></div>
-                
-                <div className="relative">
-                  <div className="flex items-center gap-6">
-                    <div className="flex-shrink-0 w-16 h-16 bg-indigo-500/10 rounded-xl flex items-center justify-center
-                      group-hover:scale-110 transition-transform duration-300">
-                      <FileText className="w-8 h-8 text-indigo-400" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-white mb-1 bg-clip-text text-transparent bg-gradient-to-r 
-                        from-indigo-200 to-blue-200">
-                        Export Analysis Report
-                      </h3>
-                      <p className="text-sm text-gray-400">Download comprehensive analysis with charts and insights</p>
-                    </div>
-
-                    <button 
-                      onClick={generatePDF}
-                      className="flex-shrink-0 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 
-                        text-white rounded-lg transition-all duration-300 text-sm font-medium
-                        flex items-center gap-2 hover:scale-105 shadow-lg"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Download Report
-                    </button>
-                  </div>
-
-                  <div className="mt-6 flex items-center gap-4">
-                    <span className="px-3 py-1.5 bg-gray-700/50 rounded-lg text-sm text-gray-300 flex items-center gap-2">
-                      <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      Includes Charts & Insights
-                    </span>
-                    <span className="px-3 py-1.5 bg-gray-700/50 rounded-lg text-sm text-gray-300 flex items-center gap-2">
-                      <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                      </svg>
-                      Secure PDF Export
-                    </span>
-                    <span className="px-3 py-1.5 bg-gray-700/50 rounded-lg text-sm text-gray-300 flex items-center gap-2">
-                      <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                          d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      High Quality
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            </button>
+          </nav>
         </div>
       </div>
 
-      {/* Floating Action Buttons */}
+      {/* Main Content Area */}
+      <div className="flex-1 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          {activeChart === 'monthly' && (
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Monthly Sales</h3>
+              <div className="h-[400px]">
+                <Bar data={barData} options={chartOptions} />
+              </div>
+              {/* Replace the existing insights section with this simpler version */}
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
+                <div className="space-y-3">
+                  {chartInsights.monthly.map((insight, index) => (
+                    <div key={index} className="flex items-baseline space-x-3">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
+                        <span className="font-semibold text-gray-800 dark:text-white">
+                          {insight.value}
+                        </span>
+                      </div>
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {insight.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeChart === 'categories' && (
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Product Categories</h3>
+              <div className="h-[400px]">
+                <Pie data={pieData} options={chartOptions} />
+              </div>
+              {/* Replace the existing insights section with this simpler version */}
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
+                <div className="space-y-3">
+                  {chartInsights.categories.map((insight, index) => (
+                    <div key={index} className="flex items-baseline space-x-3">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
+                        <span className="font-semibold text-gray-800 dark:text-white">
+                          {insight.value}
+                        </span>
+                      </div>
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {insight.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeChart === 'revenue' && (
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Revenue Trend</h3>
+              <div className="h-[400px]">
+                <Line data={lineData} options={chartOptions} />
+              </div>
+              {/* Replace the existing insights section with this simpler version */}
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
+                <div className="space-y-3">
+                  {chartInsights.revenue.map((insight, index) => (
+                    <div key={index} className="flex items-baseline space-x-3">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
+                        <span className="font-semibold text-gray-800 dark:text-white">
+                          {insight.value}
+                        </span>
+                      </div>
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {insight.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeChart === 'growth' && (
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Customer Growth</h3>
+              <div className="h-[400px]">
+                <Line data={areaChartData} options={chartOptions} />
+              </div>
+              {/* Replace the existing insights section with this simpler version */}
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
+                <div className="space-y-3">
+                  {chartInsights.growth.map((insight, index) => (
+                    <div key={index} className="flex items-baseline space-x-3">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg font-bold text-gray-800 dark:text-white">•</span>
+                        <span className="font-semibold text-gray-800 dark:text-white">
+                          {insight.value}
+                        </span>
+                      </div>
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {insight.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Paperclip Button with Circular Menu */}
       <div className="fixed bottom-32 right-6">
         {/* Circular Options */}
         <div className="relative">
@@ -701,14 +555,12 @@ const CustomRetailerDashboard = () => {
 
         {/* Main Paperclip Button */}
         <button
-          onClick={() => {
-            setGiveOptions(!showFileOptions);
-            if (isChatOpen) setIsChatOpen(false);
-          }}
-          className="w-12 h-12 rounded-full bg-indigo-500 text-white shadow-lg hover:bg-indigo-600 
-            flex items-center justify-center transition-all duration-300 hover:scale-110"
+          onClick={() => setGiveOptions(!showFileOptions)}
+          className={`p-4 bg-green-500 text-white rounded-full shadow-lg 
+            hover:bg-green-600 transition-all duration-300 z-50
+            transform ${showFileOptions ? 'rotate-45' : 'rotate-0'}`}
         >
-          <Paperclip size={24} className={`transform transition-transform duration-300 ${showFileOptions ? 'rotate-45' : ''}`} />
+          <Paperclip size={24} />
         </button>
 
         {/* Hidden File Input */}
@@ -723,46 +575,83 @@ const CustomRetailerDashboard = () => {
 
       {/* Chat Button */}
       <button
-        onClick={() => setIsChatOpen(!isChatOpen)}
-        className={`fixed bottom-6 right-6 p-4 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 
-          transition-all duration-300 ${isChatOpen ? 'hidden' : 'flex'}`}
+        onClick={() => setIsChatOpen(true)}
+        className={`fixed bottom-6 right-6 p-4 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 ${
+          isChatOpen ? 'hidden' : 'flex'
+        }`}
       >
         <MessageCircle size={24} />
       </button>
 
-      {/* Sliding Chat Interface */}
+      {/* Chat Popup */}
       {isChatOpen && (
-        <div className="fixed top-0 right-0 w-96 h-full bg-white dark:bg-gray-800 shadow-2xl 
-          transform transition-transform duration-300 translate-x-0 z-50">
-          <div className="h-full flex flex-col">
-            <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Chat Assistant</h3>
-              <button onClick={() => setIsChatOpen(false)} className="text-gray-500 hover:text-gray-700">
-                <X size={20} />
-              </button>
+        <div className="fixed bottom-6 right-6 w-[38%] h-[600px] bg-white dark:bg-gray-800 rounded-lg shadow-2xl flex flex-col">
+          {/* Chat Header */}
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+                <span className="text-white text-sm">AI</span>
+              </div>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">AI Assistant</h2>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-4">
+            <button
+              onClick={() => setIsChatOpen(false)}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+            >
+              <X size={20} className="text-gray-500 dark:text-gray-400" />
+            </button>
+          </div>
+          
+          {/* Chat Messages Area */}
+          <div className="flex-1 p-4 overflow-y-auto">
+            <div className="space-y-4">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`mb-4 ${message.type === 'user' ? 'text-right' : 'text-left'}`}
-                >
-                  <div
-                    className={`inline-block p-3 rounded-lg ${
-                      message.type === 'user'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white'
-                    }`}
-                  >
-                    {message.content}
-                  </div>
+                <div key={index} className="flex items-start">
+                  {message.type === 'ai' ? (
+                    <>
+                      <div className="flex-shrink-0">
+                        <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+                          <span className="text-white text-sm">AI</span>
+                        </div>
+                      </div>
+                      <div className="ml-3 bg-blue-100 dark:bg-gray-700 p-3 rounded-lg">
+                        <p className="text-sm text-gray-800 dark:text-gray-200">
+                          {message.content}
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="ml-auto bg-blue-500 p-3 rounded-lg max-w-[80%]">
+                      <p className="text-sm text-white">
+                        {message.content}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
-            </div>
 
-            {/* Add this PDF Upload section before the chat input */}
-            <div className="px-4 py-2 border-t dark:border-gray-700">
+              {/* Display selected PDF */}
+              {selectedPdf && (
+                <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-gray-700 rounded-lg">
+                  <FileText size={16} className="text-blue-500" />
+                  <span className="text-sm text-gray-600 dark:text-gray-300 truncate">
+                    {selectedPdf.name}
+                  </span>
+                  <button
+                    onClick={() => setSelectedPdf(null)}
+                    className="ml-auto text-gray-500 hover:text-red-500"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Chat Input with PDF Upload */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="space-y-3">
+              {/* PDF Upload Section */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <input
@@ -784,37 +673,24 @@ const CustomRetailerDashboard = () => {
                   <span className="text-xs text-red-500">{pdfError}</span>
                 )}
               </div>
-              {selectedPdf && (
-                <div className="mt-2 flex items-center gap-2 p-2 bg-blue-50 dark:bg-gray-700 rounded-lg">
-                  <FileText size={16} className="text-blue-500" />
-                  <span className="text-sm text-gray-600 dark:text-gray-300 truncate">
-                    {selectedPdf.name}
-                  </span>
-                  <button
-                    onClick={() => setSelectedPdf(null)}
-                    className="ml-auto text-gray-500 hover:text-red-500"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
-            </div>
 
-            {/* Chat Input Section */}
-            <div className="p-4 border-t dark:border-gray-700">
+              {/* Updated Message Input */}
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Type your message..."
-                  className="flex-1 p-2 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500
-                    dark:bg-gray-700 dark:text-white"
+                  placeholder="Ask something about your data..."
+                  className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSendMessage();
+                    }
+                  }}
                 />
-                <button
+                <button 
                   onClick={handleSendMessage}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   Send
                 </button>
