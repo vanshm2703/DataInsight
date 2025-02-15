@@ -1,5 +1,7 @@
 import React from 'react';
 import { Upload, BarChart, MessageCircle, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 
 const AnalyticsSVG = () => {
   return (
@@ -19,7 +21,7 @@ const AnalyticsSVG = () => {
       </defs>
       
       {/* Background */}
-      <rect width="480" height="360" rx="12" fill="#f8fafc" className="dark:fill-gray-800" />
+      <rect width="480" height="360" rx="12" fill="#1f2937" className="dark:fill-gray-800" />
       
       {/* Document Icon */}
       <g transform="translate(80, 60)" filter="url(#shadow)">
@@ -101,7 +103,7 @@ const AnalyticsSVG = () => {
 
 const HeroSection = () => {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-800 pt-16 pb-24">
+    <div className="relative overflow-hidden bg- dark:from-gray-900 dark:to-gray-800 pt-16 pb-24">
       <div className="absolute inset-0 w-full h-full pointer-events-none">
                 <div className="absolute top-1/5 left-1/4 w-48 h-48 bg-indigo-500 opacity-30 blur-3xl rounded-full animate-pulse"></div>
                 <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-indigo-400 opacity-40 blur-3xl rounded-full animate-pulse"></div>
@@ -121,15 +123,15 @@ const HeroSection = () => {
             </p>
             <div className="mt-8 sm:mx-auto sm:max-w-lg sm:flex sm:justify-center lg:justify-start">
               <div className="rounded-md shadow">
-                <a href="#demo" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
-                  Try Demo
-                </a>
+              <Link
+      to="/login"
+        className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
+>
+      Get Started
+    </Link>
+
               </div>
-              <div className="mt-3 sm:mt-0 sm:ml-3">
-                <a href="#learn-more" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 dark:text-blue-400 dark:bg-gray-800 dark:hover:bg-gray-700 md:py-4 md:text-lg md:px-10">
-                  Learn more
-                </a>
-              </div>
+              
             </div>
           </div>
           <div className="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
@@ -166,7 +168,7 @@ const FeaturesSection = () => {
     ];
 
     return (
-        <div id="features" className="py-16 bg-white dark:bg-gray-900">
+        <div id="features" className="py-16 dark:bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
                     <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
@@ -179,7 +181,7 @@ const FeaturesSection = () => {
 
                 <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
                     {features.map((feature, index) => (
-                        <div key={index} className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md backdrop-blur-sm bg-opacity-70 dark:bg-opacity-70 border border-gray-200 dark:border-gray-700">
+                        <div key={index} className="relative p-6  dark:bg-gray-800 rounded-xl shadow-md backdrop-blur-sm bg-opacity-70 dark:bg-opacity-70 border border-gray-200 dark:border-gray-700">
                             <div className="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mb-5">
                                 {feature.icon}
                             </div>
@@ -218,7 +220,7 @@ const HowItWorksSection = () => {
     ];
 
     return (
-        <div id="how-it-works" className="py-16 bg-gray-50 dark:bg-gray-900">
+        <div id="how-it-works" className="py-16 dark:bg-gray-900">
             <div className="relative overflow-hidden bg-gradient-to-b from-gray-100 to-blue-50 dark:from-gray-800 dark:to-gray-900 pt-16 pb-24">
                 {/* Background Spheres */}
                 <div className="absolute inset-0 w-full h-full pointer-events-none">
@@ -259,7 +261,7 @@ const HowItWorksSection = () => {
 
 const CTASection = () => {
     return (
-        <div className="bg-indigo-600 dark:bg-indigo-800">
+        <div className=" dark:bg-indigo-800">
             <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
                 <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
                     <span className="block">Ready to dive deeper?</span>
@@ -267,16 +269,16 @@ const CTASection = () => {
                 </h2>
                 <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
                     <div className="inline-flex rounded-md shadow">
-                        <a href="#signup" className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50">
-                            Get started
-                            <ChevronRight size={16} className="ml-2" />
-                        </a>
+                    <Link
+  to="/login"
+  className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50"
+>
+  Get started
+  <ChevronRight size={16} className="ml-2" />
+</Link>
+
                     </div>
-                    <div className="ml-3 inline-flex rounded-md shadow">
-                        <a href="#demo" className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-800 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600">
-                            Schedule demo
-                        </a>
-                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -284,14 +286,20 @@ const CTASection = () => {
 };
 
 const Landing = () => {
-    return (
-        <div>
-            <HeroSection />
-            <FeaturesSection />
-            <HowItWorksSection />
-            <CTASection />
-        </div>
-    );
+  // Add useEffect to ensure dark mode is applied
+  React.useEffect(() => {
+      document.documentElement.classList.add('dark');
+  }, []);
+
+  return (
+      // Change the wrapper div to force dark mode styles
+      <div className="bg-gray-900 text-white">
+          <HeroSection />
+          <FeaturesSection />
+          <HowItWorksSection />
+          <CTASection />
+      </div>
+  );
 };
 
 export default Landing;
