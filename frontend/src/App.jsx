@@ -5,6 +5,7 @@ import Register from './components/Register'
 import { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
+import RetailerDashboard from './pages/retailer'
 
 function App() {
   // Initialize darkMode as true
@@ -24,6 +25,7 @@ function App() {
           <Route path="/login" element={<Login/>} />
           <Route path="/register" element={<Register/>} />
           <Route path="/" element={<Landing/>} />
+          <Route path="/retailer" element={<RetailerDashboard/>} />
         </Routes>
       </BrowserRouter>
     </div>
