@@ -9,7 +9,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [userType, setUserType] = useState("client"); // New state for user type
+  const [userType, setUserType] = useState("user"); // New state for user type
 
   const loginHandle = async (e) => {
     e.preventDefault();
@@ -29,6 +29,7 @@ const Login = () => {
       // Store the token/user data in localStorage
       localStorage.setItem('user', JSON.stringify(response.data.user));
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', userType);
       
       // Redirect to appropriate page based on role after a short delay
       setTimeout(() => {
@@ -59,17 +60,7 @@ const Login = () => {
           </div>
         )}
 
-        {/* Trial login info */}
-        <div className="absolute mt-5 border rounded-lg top-0 left-1/2 transform -translate-x-1/2 p-4 bg-blue-400 text-white text-sm sm:text-base text-center w-auto">
-          <p>
-            <strong>Trial Login Info:</strong>
-            <br />
-            <span>Email: helz@gmail.com</span>
-            <br />
-            <span>Password: helz</span>
-          </p>
-        </div>
-
+        
         {/* Login Card */}
         <div className="relative bg-[#111827] p-8 rounded-lg shadow-xl z-10 w-full max-w-md">
           <h1 className="text-3xl sm:text-4xl text-center mb-6 text-[#06B6D4] font-semibold">
@@ -79,7 +70,7 @@ const Login = () => {
           {/* User Type Selection */}
           <div className="flex gap-4 mb-6">
             <button
-              onClick={() => setUserType("client")}
+              onClick={() => setUserType("user")}
               className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${
                 userType === "user"
                   ? "bg-[#3B82F6] text-white"
