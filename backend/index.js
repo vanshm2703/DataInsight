@@ -5,7 +5,9 @@ import cors from 'cors';
 import morgan from 'morgan';
 
 import authRoutes from './routes/auth.routes.js';
+import llmRoutes from './routes/custom.routes.js'
 import cookieParser from 'cookie-parser';
+
 
 dotenv.config();
 
@@ -20,13 +22,17 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+import Groq from 'groq-sdk';
 
+
+const groq = new Groq({ apiKey:  process.env.GROQ_KEY});
 
 
 app.get('/',(req,res)=>{
   res.send('Hello World')
 })
 app.use('/user', authRoutes);
+app.use('/llm', llmRoutes)
 
 const PORT = process.env.PORT || 3000;
 
