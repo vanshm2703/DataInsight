@@ -161,6 +161,32 @@ const CustomRetailerDashboard = () => {
     }
   };
 
+  const handlePdfUpload = (event) => {
+    const file = event.target.files[0];
+    setPdfError(''); // Reset error message
+
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        setPdfError('Please upload only PDF files');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) { // Limit file size to 5MB
+        setPdfError('File size must be less than 5MB');
+        return;
+      }
+      setSelectedPdf(file); // Set the selected PDF file
+
+      // Send a message to the chat indicating the PDF has been uploaded
+      setMessages(prev => [
+        ...prev,
+        {
+          type: 'user',
+          content: `PDF uploaded: ${file.name}`
+        }
+      ]);
+    }
+  };
+
   const handleSendMessage = () => {
     if (messageInput.trim()) {
       setMessages(prev => [...prev, {
