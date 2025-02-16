@@ -42,12 +42,6 @@ const Navbar = () => {
                   </a>
                 ) : (
                   <>
-                    <Link to="/customretailer" className="text-gray-300 font-medium hover:text-blue-400">
-                      Custom Input
-                    </Link>
-                    <Link to="/retailer" className="text-gray-300 font-medium hover:text-blue-400">
-                      PreTrained Model
-                    </Link>
                   </>
                 )}
                 <button

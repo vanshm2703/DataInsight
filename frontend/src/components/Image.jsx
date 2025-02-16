@@ -82,7 +82,7 @@ const ImageUpload = ({ onClose }) => {
           {/* Modal Header */}
           <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-4">
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
-              Upload Food Image
+              Upload Data Image
             </h3>
             <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
               <X size={20} className="text-gray-500 dark:text-gray-400" />

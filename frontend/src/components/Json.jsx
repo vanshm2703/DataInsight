@@ -3,11 +3,14 @@ import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import { FileSpreadsheet, Upload, X } from "lucide-react";
 import axios from "axios";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const ParseExcel = ({ onClose }) => {
   const [jsonData, setJsonData] = useState(null);
   const [fileName, setFileName] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -89,7 +92,8 @@ const ParseExcel = ({ onClose }) => {
     try {
       const response = await axios.post("http://localhost:5000/llm/insertMany", { data: jsonData });
       console.log("Data inserted successfully:", response.data);
-      alert("Data successfully inserted into MongoDB! ✅");
+      toast.success('Data inserted successfully');
+      navigate('/customretailer');
       setJsonData(null); // Clear state after successful insertion
       setFileName(null);
     } catch (error) {

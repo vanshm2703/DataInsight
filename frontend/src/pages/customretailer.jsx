@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Bar, Line, Doughnut, Radar } from 'react-chartjs-2';
 import { MessageCircle, X, Upload, FileText, Paperclip, Cat } from 'lucide-react';
+import Chatbot from '../components/ChatBot';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -757,139 +758,13 @@ const CustomRetailerDashboard = () => {
         {/* Main Paperclip Button */}
         <button
           onClick={() => setGiveOptions(!showFileOptions)}
-          className={`p-4 bg-green-500 text-white rounded-full shadow-lg 
+          className={`p-4 relative top-10 bg-green-500 text-white rounded-full shadow-lg 
             hover:bg-green-600 transition-all duration-300 z-50
-            transform ${showFileOptions ? 'rotate-45' : 'rotate-0'}`}
+            transform ${showFileOptions ? ' rotate-45' : ' rotate-0'}`}
         >
           <Paperclip size={24} />
         </button>
       </div>
-
-      {/* Chat Button */}
-      <button
-        onClick={() => setIsChatOpen(true)}
-        className={`fixed bottom-6 right-6 p-4 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 ${isChatOpen ? 'hidden' : 'flex'
-          }`}
-      >
-        <MessageCircle size={24} />
-      </button>
-
-      {/* Chat Popup */}
-      {isChatOpen && (
-        <div className="fixed bottom-6 right-6 w-[38%] h-[600px] bg-white dark:bg-gray-800 rounded-lg shadow-2xl flex flex-col">
-          {/* Chat Header */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                <span className="text-white text-sm">AI</span>
-              </div>
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">AI Assistant</h2>
-            </div>
-            <button
-              onClick={() => setIsChatOpen(false)}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-            >
-              <X size={20} className="text-gray-500 dark:text-gray-400" />
-            </button>
-          </div>
-
-          {/* Chat Messages Area */}
-          <div className="flex-1 p-4 overflow-y-auto">
-            <div className="space-y-4">
-              {messages.map((message, index) => (
-                <div key={index} className="flex items-start">
-                  {message.type === 'ai' ? (
-                    <>
-                      <div className="flex-shrink-0">
-                        <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                          <span className="text-white text-sm">AI</span>
-                        </div>
-                      </div>
-                      <div className="ml-3 bg-blue-100 dark:bg-gray-700 p-3 rounded-lg">
-                        <p className="text-sm text-gray-800 dark:text-gray-200">
-                          {message.content}
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="ml-auto bg-blue-500 p-3 rounded-lg max-w-[80%]">
-                      <p className="text-sm text-white">
-                        {message.content}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Display selected PDF */}
-              {selectedPdf && (
-                <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-gray-700 rounded-lg">
-                  <FileText size={16} className="text-blue-500" />
-                  <span className="text-sm text-gray-600 dark:text-gray-300 truncate">
-                    {selectedPdf.name}
-                  </span>
-                  <button
-                    onClick={() => setSelectedPdf(null)}
-                    className="ml-auto text-gray-500 hover:text-red-500"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Chat Input with PDF Upload */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="space-y-3">
-              {/* PDF Upload Section */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="file"
-                    id="pdf-upload"
-                    accept=".pdf"
-                    onChange={handlePdfUpload}
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="pdf-upload"
-                    className="flex items-center gap-2 text-sm text-blue-500 hover:text-blue-600 cursor-pointer"
-                  >
-                    <Upload size={18} />
-                    <span>Upload PDF</span>
-                  </label>
-                </div>
-                {pdfError && (
-                  <span className="text-xs text-red-500">{pdfError}</span>
-                )}
-              </div>
-
-              {/* Updated Message Input */}
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder="Ask something about your data..."
-                  className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSendMessage();
-                    }
-                  }}
-                />
-                <button
-                  onClick={handleSendMessage}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  Send
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
