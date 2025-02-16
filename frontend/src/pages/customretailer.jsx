@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Bar, Line, Doughnut,Radar  } from 'react-chartjs-2';
+import { Bar, Line, Doughnut, Radar } from 'react-chartjs-2';
 import { MessageCircle, X, Upload, FileText, Paperclip, Cat } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -17,6 +17,7 @@ import {
 } from 'chart.js';
 import axios from 'axios';
 import SummaryMetrics from '../components/SummaryMetrics';
+import Loader from '../Loader/Loader';
 
 ChartJS.register(
   CategoryScale,
@@ -65,7 +66,7 @@ const CustomRetailerDashboard = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+  const [loader, setLoader] = useState(false);
 
 
   // State to manage selected file type
@@ -80,8 +81,11 @@ const CustomRetailerDashboard = () => {
   ];
 
   const monthlyAnalysis = async () => {
+    setLoader(true);
     try {
       const res = await axios.post("http://localhost:5000/llm/monthxprice");
+      console.log(res.data);
+      
 
       // Ensure the response contains data before updating state
       if (res.data && res.data.data) {
@@ -94,6 +98,9 @@ const CustomRetailerDashboard = () => {
 
     } catch (error) {
       console.error("Error fetching monthly analysis data:", error);
+    }
+    finally {
+      setLoader(false);
     }
   };
 
@@ -151,7 +158,7 @@ const CustomRetailerDashboard = () => {
     setError(null);
     try {
       const res = await axios.post("http://localhost:5000/llm/deliver");
-      
+
       if (res.data && res.data.data && res.data.response && res.data.labels) {
         setRadarData({
           values: res.data.data,
@@ -242,38 +249,38 @@ const CustomRetailerDashboard = () => {
     ],
   };
 
- // Default data as fallback
- const defaultData = {
-  labels: [
-    "Delivered - Not Returned",
-    "Delivered - Returned",
-    "Shipped - Not Returned",
-    "Shipped - Returned",
-    "Pending - Not Returned",
-    "Pending - Returned"
-  ],
-  values: [32, 8, 24, 4, 26, 6]
-};
+  // Default data as fallback
+  const defaultData = {
+    labels: [
+      "Delivered - Not Returned",
+      "Delivered - Returned",
+      "Shipped - Not Returned",
+      "Shipped - Returned",
+      "Pending - Not Returned",
+      "Pending - Returned"
+    ],
+    values: [32, 8, 24, 4, 26, 6]
+  };
 
-// Prepare radar chart data with fallback
-const radarChartData = {
-  labels: radarData.labels.length > 0 ? radarData.labels : defaultData.labels,
-  datasets: [
-    {
-      label: 'Delivery & Return Combinations',
-      data: radarData.values.length > 0 ? radarData.values : defaultData.values,
-      backgroundColor: 'rgba(54, 162, 235, 0.2)',
-      borderColor: 'rgba(54, 162, 235, 1)',
-      borderWidth: 2,
-      pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
-      pointRadius: 4,
-      pointHoverRadius: 6,
-    }
-  ],
-};
+  // Prepare radar chart data with fallback
+  const radarChartData = {
+    labels: radarData.labels.length > 0 ? radarData.labels : defaultData.labels,
+    datasets: [
+      {
+        label: 'Delivery & Return Combinations',
+        data: radarData.values.length > 0 ? radarData.values : defaultData.values,
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }
+    ],
+  };
 
   const chartOptions = {
     responsive: true,
@@ -384,7 +391,7 @@ const radarChartData = {
         borderWidth: 1,
         displayColors: true,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             const label = context.label || '';
             const value = context.raw || 0;
             const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
@@ -414,7 +421,7 @@ const radarChartData = {
           font: {
             size: 11
           },
-          callback: function(label) {
+          callback: function (label) {
             // Shortens the labels for better display
             if (label.includes(' - ')) {
               const parts = label.split(' - ');
@@ -456,7 +463,7 @@ const radarChartData = {
         borderWidth: 1,
         displayColors: true,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             const value = context.raw || 0;
             const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
             const percentage = Math.round((value / total) * 100);
@@ -594,8 +601,8 @@ const radarChartData = {
               className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${activeChart === 'revenue'
                 ? 'bg-blue-500 text-white'
                 : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
-              >
+                }`}
+            >
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -604,11 +611,11 @@ const radarChartData = {
               </div>
             </button>
 
-              <button
-                onClick={() => {
-                  setActiveChart('growth');
-                  fetchDeliveryReturnData();
-                }}
+            <button
+              onClick={() => {
+                setActiveChart('growth');
+                fetchDeliveryReturnData();
+              }}
               className={`w-full px-4 py-3 text-left rounded-lg transition-colors duration-150 ${activeChart === 'growth'
                 ? 'bg-blue-500 text-white'
                 : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -627,29 +634,38 @@ const radarChartData = {
 
       {/* Main Content Area */}
       <div className="flex-1 p-6">
-        <SummaryMetrics/>
+        <SummaryMetrics />
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-          {activeChart === 'monthly' && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Monthly Sales</h3>
-              <div className="h-[400px]">
-                <Bar data={barData} options={chartOptions} />
-              </div>
-              {/* Replace the existing insights section with this simpler version */}
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
-                <div className="space-y-3">
-                  <div dangerouslySetInnerHTML={{ __html: Month.html }} />
+          {loader ? (
+            <Loader />
+          ) : (
+            activeChart === "monthly" && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+                  Monthly Sales
+                </h3>
+                <div className="h-[400px]">
+                  <Bar data={barData} options={chartOptions} />
+                </div>
+                {/* Insights Section */}
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+                    Key Insights
+                  </h4>
+                  <div className="space-y-3">
+                    <div dangerouslySetInnerHTML={{ __html: Month.html }} />
+                  </div>
                 </div>
               </div>
-            </div>
+            )
           )}
+
 
           {activeChart === 'categories' && (
             <div className="space-y-6">
               <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Product Categories</h3>
               <div className="h-[400px]">
-              <Doughnut data={doughnut} options={doughnutOptions} />              </div>
+                <Doughnut data={doughnut} options={doughnutOptions} />              </div>
               {/* Replace the existing insights section with this simpler version */}
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
@@ -670,7 +686,7 @@ const radarChartData = {
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
                 <div className="space-y-3">
-                  <div className='bg-white/80 p-2 border rounded-lg' dangerouslySetInnerHTML={{ __html: line.html }} />       
+                  <div className='bg-white/80 p-2 border rounded-lg' dangerouslySetInnerHTML={{ __html: line.html }} />
                 </div>
               </div>
             </div>
@@ -680,7 +696,7 @@ const radarChartData = {
             <div className="space-y-6">
               <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Customer Growth</h3>
               <div className="h-[400px]">
-              <Radar data={radarChartData} options={radarOptions} />
+                <Radar data={radarChartData} options={radarOptions} />
               </div>
               {/* Replace the existing insights section with this simpler version */}
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
