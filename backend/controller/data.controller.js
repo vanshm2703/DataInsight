@@ -8,11 +8,11 @@ const indianNames = [
 const imgdata = async (req, res) => {
     try {
         const { rows } = req.body;
-
-        // Get the last customer_id from DB
-        const lastOrder = await Order.findOne().sort({ customer_id: -1 });
+        // // Get the last customer_id from DB
+        const lastOrder = await Order.findOne().sort({ customer_id: -1 });        
         let lastCustomerId = lastOrder ? parseInt(lastOrder.customer_id.replace("CUST", "")) : 0;
-
+            console.log(lastCustomerId);
+            
         const locations = ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Ahmedabad"];
         const categories = {
             "Electronics": ["Smartphone", "Laptop", "Smartwatch", "Headphones", "Tablet"],
@@ -72,4 +72,28 @@ const imgdata = async (req, res) => {
     }
 };
 
-export default imgdata;
+
+const insertManyData = async (req, res) => {
+    try {
+      const { data } = req.body;
+  
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        return res.status(400).json({ error: "Invalid or empty data provided." });
+      }
+  
+      // Insert data into MongoDB using insertMany
+      const insertedDocs = await Order.insertMany(data);
+  
+      res.status(201).json({
+        message: "Data inserted successfully",
+        insertedCount: insertedDocs.length,
+        insertedIds: insertedDocs.map((doc) => doc._id),
+      });
+    } catch (error) {
+      console.error("Error inserting data:", error);
+      res.status(500).json({ error: "Failed to insert data" });
+    }
+  };
+
+
+export  {imgdata, insertManyData};

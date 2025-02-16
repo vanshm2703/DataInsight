@@ -7,6 +7,8 @@ import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
 import RetailerDashboard from './pages/retailer'
 import CustomRetailerDashboard from './pages/customretailer'
+import Image from './components/Image'
+import Json from './components/Json'
 
 // Component to conditionally render Navbar
 const AppLayout = ({darkMode, setDarkMode, children}) => {
@@ -47,6 +49,17 @@ function App() {
               <RetailerDashboard/>
             </AppLayout>
           } />
+          <Route path="/upload-img" element={
+            <AppLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+              <Image/>
+            </AppLayout>
+          } />
+          <Route path="/upload-csv" element={
+            <AppLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+              <Json/>
+            </AppLayout>
+          } />
+
           <Route path="/customretailer" element={
             <AppLayout darkMode={darkMode} setDarkMode={setDarkMode}>
               <CustomRetailerDashboard/>

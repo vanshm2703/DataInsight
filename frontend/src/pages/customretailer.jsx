@@ -18,6 +18,7 @@ import {
 import axios from 'axios';
 import SummaryMetrics from '../components/SummaryMetrics';
 import Loader from '../Loader/Loader';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(
   CategoryScale,
@@ -68,6 +69,8 @@ const CustomRetailerDashboard = () => {
   const [error, setError] = useState(null);
   const [loader, setLoader] = useState(false);
 
+  const navigate = useNavigate();
+
 
   // State to manage selected file type
   const [fileType, setFileType] = useState('');
@@ -75,17 +78,16 @@ const CustomRetailerDashboard = () => {
 
   // Add these file options with icons
   const fileOptions = [
-    { type: 'image', label: 'Image', icon: '🖼️' },
-    { type: 'csv', label: 'CSV', icon: '📊' },
-    { type: 'text', label: 'Text', icon: '📝' }
+    { type: 'image', label: 'Image', icon: '🖼️', url: '/upload-img' },
+    { type: 'csv', label: 'CSV', icon: '📊', url: '/upload-csv' },
+    { type: 'text', label: 'Text', icon: '📝', url: '' } // Ensure URL is valid
   ];
-
   const monthlyAnalysis = async () => {
     setLoader(true);
     try {
       const res = await axios.post("http://localhost:5000/llm/monthxprice");
       console.log(res.data);
-      
+
 
       // Ensure the response contains data before updating state
       if (res.data && res.data.data) {
@@ -108,7 +110,7 @@ const CustomRetailerDashboard = () => {
   }, [])
 
   const categoryAnalysis = async () => {
-    setLoading(true);
+    setLoader(true); // Show loader
     setError(null);
     try {
       const res = await axios.post("http://localhost:5000/llm/categoryPie");
@@ -128,12 +130,13 @@ const CustomRetailerDashboard = () => {
       console.error("❌ Error fetching category analysis data:", error);
       setError("Failed to fetch category analysis data");
     } finally {
-      setLoading(false);
+      setLoader(false); // Hide loader
     }
   };
 
+
   const lineAnalysis = async () => {
-    setLoading(true);
+    setLoader(true); // Show loader
     setError(null);
     try {
       const res = await axios.post("http://localhost:5000/llm/genderxcategory");
@@ -149,12 +152,12 @@ const CustomRetailerDashboard = () => {
       console.error("❌ Error fetching line analysis data:", error);
       setError("Failed to fetch gender analysis data");
     } finally {
-      setLoading(false);
+      setLoader(false); // Hide loader
     }
   };
 
   const fetchDeliveryReturnData = async () => {
-    setLoading(true);
+    setLoader(true); // Show loader
     setError(null);
     try {
       const res = await axios.post("http://localhost:5000/llm/deliver");
@@ -173,7 +176,7 @@ const CustomRetailerDashboard = () => {
       console.error("❌ Error fetching delivery return data:", error);
       setError("Failed to fetch delivery and return status data");
     } finally {
-      setLoading(false);
+      setLoader(false); // Hide loader
     }
   };
 
@@ -476,29 +479,6 @@ const CustomRetailerDashboard = () => {
 
 
 
-
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      // Handle file upload based on the selected file type
-      if (fileType === 'image' && !file.type.startsWith('image/')) {
-        alert('Please upload a valid image file.');
-        return;
-      }
-      if (fileType === 'csv' && file.type !== 'text/csv') {
-        alert('Please upload a valid CSV file.');
-        return;
-      }
-      if (fileType === 'text' && file.type !== 'text/plain') {
-        alert('Please upload a valid text file.');
-        return;
-      }
-      // Handle the file (e.g., set it to state or process it)
-      console.log(`Uploaded ${fileType}:`, file);
-      setGiveOptions(false); // Hide options after selection
-    }
-  };
-
   const handlePdfUpload = (event) => {
     const file = event.target.files[0];
     setPdfError(''); // Reset error message
@@ -653,7 +633,10 @@ const CustomRetailerDashboard = () => {
                     Key Insights
                   </h4>
                   <div className="space-y-3">
-                    <div dangerouslySetInnerHTML={{ __html: Month.html }} />
+                    <div
+              className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border-l-4 border-blue-500 shadow-md"
+              dangerouslySetInnerHTML={{ __html: Month.html }}
+            />
                   </div>
                 </div>
               </div>
@@ -661,52 +644,64 @@ const CustomRetailerDashboard = () => {
           )}
 
 
-          {activeChart === 'categories' && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Product Categories</h3>
-              <div className="h-[400px]">
-                <Doughnut data={doughnut} options={doughnutOptions} />              </div>
-              {/* Replace the existing insights section with this simpler version */}
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
-                <div className="space-y-3">
-                  <div dangerouslySetInnerHTML={{ __html: category.html }} />
+          {loader ? (
+            <Loader />
+          ) : (
+            activeChart === 'categories' && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Product Categories</h3>
+                <div className="h-[400px]">
+                  <Doughnut data={doughnut} options={doughnutOptions} />              </div>
+                {/* Replace the existing insights section with this simpler version */}
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
+                  <div className="space-y-3">
+                    <div dangerouslySetInnerHTML={{ __html: category.html }} />
+                  </div>
                 </div>
               </div>
-            </div>
+            )
           )}
 
-          {activeChart === 'revenue' && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Revenue Trend</h3>
-              <div className="h-[400px]">
-                <Line data={lineData} options={chartOptions} />
-              </div>
-              {/* Replace the existing insights section with this simpler version */}
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
-                <div className="space-y-3">
-                  <div className='bg-white/80 p-2 border rounded-lg' dangerouslySetInnerHTML={{ __html: line.html }} />
+          {loader ? (
+            <Loader />
+          ) : (
+            activeChart === 'revenue' && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Revenue Trend</h3>
+                <div className="h-[400px]">
+                  <Line data={lineData} options={chartOptions} />
+                </div>
+                {/* Replace the existing insights section with this simpler version */}
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
+                  <div className="space-y-3">
+                    <div className='bg-white/80 p-2 border rounded-lg' dangerouslySetInnerHTML={{ __html: line.html }} />
+                  </div>
                 </div>
               </div>
-            </div>
+
+            )
           )}
 
-          {activeChart === 'growth' && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Customer Growth</h3>
-              <div className="h-[400px]">
-                <Radar data={radarChartData} options={radarOptions} />
-              </div>
-              {/* Replace the existing insights section with this simpler version */}
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
-                <div className="space-y-3">
-                  <div dangerouslySetInnerHTML={{ __html: radarData.html }} />
+          {loader ?(
+            <Loader />):(
+              activeChart === 'growth' && (
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Customer Growth</h3>
+                  <div className="h-[400px]">
+                    <Radar data={radarChartData} options={radarOptions} />
+                  </div>
+                  {/* Replace the existing insights section with this simpler version */}
+                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
+                    <div className="space-y-3">
+                      <div dangerouslySetInnerHTML={{ __html: radarData.html }} />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )
+            )}
         </div>
       </div>
 
@@ -727,24 +722,31 @@ const CustomRetailerDashboard = () => {
               <button
                 key={index}
                 onClick={() => {
-                  setFileType(option.type);
-                  document.getElementById('file-upload').click();
+                  if (option.url) {
+                    navigate(option.url); // Only navigate if URL exists
+                  } else {
+                    alert('No URL defined for this option.');
+                  }
                 }}
                 className={`absolute p-4 bg-white dark:bg-gray-800 rounded-full shadow-lg 
-                  hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300
-                  border border-gray-400/20 
-                  group ${showFileOptions ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
+                hover:bg-gray-50 dark:hover:bg-gray-700 transition-transform duration-300 ease-out
+                border border-gray-400/20 
+                group ${showFileOptions ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
                 style={{
                   transform: `translate(${x}px, ${y}px) ${showFileOptions ? 'scale(1)' : 'scale(0)'}`,
                   transitionDelay: `${index * 50}ms`
                 }}
               >
+                {/* Icon */}
                 <span className="text-xl">{option.icon}</span>
-                <span className={`absolute whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-300
-                  bg-white dark:bg-gray-800 px-2 py-1 rounded-md shadow-sm
-                  border border-gray-400/20
-                  opacity-0 group-hover:opacity-100 transition-opacity
-                  ${index === 2 ? '-left-20 top-2 z-[60]' : '-top-8'}`}>
+
+                {/* Tooltip */}
+                <span
+                  className={`absolute whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-300
+                  bg-white dark:bg-gray-800 px-2 py-1 rounded-md shadow-sm border border-gray-400/20
+                  opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                  ${index === 2 ? '-left-20 top-2 z-[60]' : '-top-8'}`}
+                >
                   {option.label}
                 </span>
               </button>
@@ -761,15 +763,6 @@ const CustomRetailerDashboard = () => {
         >
           <Paperclip size={24} />
         </button>
-
-        {/* Hidden File Input */}
-        <input
-          type="file"
-          id="file-upload"
-          accept=".jpg,.jpeg,.png,.csv,.txt"
-          onChange={handleFileUpload}
-          className="hidden"
-        />
       </div>
 
       {/* Chat Button */}
