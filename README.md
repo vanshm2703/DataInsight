@@ -27,10 +27,4 @@ https://github.com/user-attachments/assets/7bf39930-b0f6-4acf-9279-5f3f5d45d66c
 - **Dynamic Visualizations**: Generates interactive charts and graphs to represent data insights effectively.
 - **User-Friendly Interface**: Provides an intuitive dashboard for users to explore various data insights.
 
-## Installation
 
-To set up the project locally, follow these steps:
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/yourusername/ecommerce-analysis-project.git
