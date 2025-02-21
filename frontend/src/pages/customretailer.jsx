@@ -81,7 +81,7 @@ const CustomRetailerDashboard = () => {
   const fileOptions = [
     { type: 'image', label: 'Image', icon: '🖼️', url: '/upload-img' },
     { type: 'csv', label: 'CSV', icon: '📊', url: '/upload-csv' },
-    { type: 'text', label: 'Text', icon: '📝', url: '' } // Ensure URL is valid
+    // { type: 'text', label: 'Text', icon: '📝', url: '' } // Ensure URL is valid
   ];
   const monthlyAnalysis = async () => {
     setLoader(true);
@@ -635,7 +635,7 @@ const CustomRetailerDashboard = () => {
                   </h4>
                   <div className="space-y-3">
                     <div
-              className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border-l-4 border-blue-500 shadow-md"
+              className="p-3 bg-gray-100 dark:bg-gray-300 rounded-lg border-l-4 border-blue-500 shadow-md"
               dangerouslySetInnerHTML={{ __html: Month.html }}
             />
                   </div>
@@ -650,12 +650,12 @@ const CustomRetailerDashboard = () => {
           ) : (
             activeChart === 'categories' && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Product Categories</h3>
+                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-black">Product Categories</h3>
                 <div className="h-[400px]">
                   <Doughnut data={doughnut} options={doughnutOptions} />              </div>
                 {/* Replace the existing insights section with this simpler version */}
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
+                <div className="mt-6 pt-6 border-t border-gray-200 bg-gray-300/80 p-2 border rounded-lg dark:border-gray-700">
+                  <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-black">Key Insights</h4>
                   <div className="space-y-3">
                     <div dangerouslySetInnerHTML={{ __html: category.html }} />
                   </div>
@@ -697,7 +697,7 @@ const CustomRetailerDashboard = () => {
                   <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Key Insights</h4>
                     <div className="space-y-3">
-                      <div dangerouslySetInnerHTML={{ __html: radarData.html }} />
+                      <div className='border border-white bg-gray-600' dangerouslySetInnerHTML={{ __html: radarData.html }} />
                     </div>
                   </div>
                 </div>
@@ -711,10 +711,10 @@ const CustomRetailerDashboard = () => {
         {/* Circular Options */}
         <div className="relative">
           {showFileOptions && fileOptions.map((option, index) => {
-            const startAngle = 255 * (Math.PI / 180);
-            const endAngle = 155 * (Math.PI / 180);
+            const startAngle = 235 * (Math.PI / 180);
+            const endAngle = 170 * (Math.PI / 180);
             const angle = startAngle + (index * ((endAngle - startAngle) / (fileOptions.length - 1)));
-            const distance = 85;
+            const distance = 80;
 
             const x = Math.cos(angle) * distance;
             const y = Math.sin(angle) * distance;
@@ -731,7 +731,7 @@ const CustomRetailerDashboard = () => {
                 }}
                 className={`absolute p-4 bg-white dark:bg-gray-800 rounded-full shadow-lg 
                 hover:bg-gray-50 dark:hover:bg-gray-700 transition-transform duration-300 ease-out
-                border border-gray-400/20 
+                border border-gray-400/60 
                 group ${showFileOptions ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
                 style={{
                   transform: `translate(${x}px, ${y}px) ${showFileOptions ? 'scale(1)' : 'scale(0)'}`,

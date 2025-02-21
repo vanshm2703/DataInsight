@@ -33,7 +33,7 @@ const Login = () => {
       
       // Redirect to appropriate page based on role after a short delay
       setTimeout(() => {
-        window.location.href = userType === 'user' ? '/user' : '/customretailer';
+        window.location.href = userType === 'user' ? '/user' : '/upload';
       }, 1000);
       
     } catch (error) {

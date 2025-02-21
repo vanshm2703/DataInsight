@@ -10,6 +10,7 @@ import CustomRetailerDashboard from './pages/customretailer'
 import Image from './components/Image'
 import Json from './components/Json'
 import Upload from './components/Upload'
+import User from './pages/User'
 
 // Component to conditionally render Navbar
 const AppLayout = ({darkMode, setDarkMode, children}) => {
@@ -44,6 +45,11 @@ function App() {
           <Route path="/" element={
             <AppLayout darkMode={darkMode} setDarkMode={setDarkMode}>
               <Landing/>
+            </AppLayout>
+          } />
+          <Route path="/user" element={
+            <AppLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+              <User/>
             </AppLayout>
           } />
           <Route path="/retailer" element={
