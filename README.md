@@ -4,7 +4,8 @@ A comprehensive project utilizing a 2.7 billion-parameter Large Language Model (
 
 ## Video Demonstration
 
-https://github.com/user-attachments/assets/9f54eb1c-1c59-4595-bf80-16f36384de5f
+https://github.com/user-attachments/assets/7bf39930-b0f6-4acf-9279-5f3f5d45d66c
+
 
 ## Other Images
 
