@@ -6,6 +6,12 @@ A comprehensive project utilizing a 2.7 billion-parameter Large Language Model (
 
 https://github.com/user-attachments/assets/9f54eb1c-1c59-4595-bf80-16f36384de5f
 
+## Other Images
+
+![WhatsApp Image 2025-02-21 at 21 19 27_5b65f82d](https://github.com/user-attachments/assets/bd23f780-8ed8-4ae6-a7c9-e336cc7b73d7)   ![WhatsApp Image 2025-02-21 at 21 19 27_eddf3afc](https://github.com/user-attachments/assets/4cfb92e0-ede4-4c9b-b3e9-4ed83fc9dc21) 
+
+![WhatsApp Image 2025-02-21 at 21 19 28_8f8e4d22](https://github.com/user-attachments/assets/0d546a21-dd17-4959-9fb6-82825746eab4)
+
 
 ## Technologies Used
 
