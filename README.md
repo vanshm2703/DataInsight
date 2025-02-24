@@ -1,4 +1,4 @@
-# E-Commerce Data Analysis Project 📊🛒
+# Data Insight 📊🛒
 
 A comprehensive project utilizing a 2.7 billion-parameter Large Language Model (LLM) to analyze both structured and unstructured e-commerce data. This system generates actionable insights visualized through dynamic graphs, including pie charts, bar graphs, and line graphs, to aid in strategic decision-making.
 
